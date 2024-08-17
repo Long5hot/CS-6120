@@ -10,7 +10,6 @@
 
 
 - Basic Blocks
---------------
 
   - Replace single instructions as vertices in the CFG with little sequences
     of instructions.
@@ -18,7 +17,6 @@
     And you can only jump to the top of the basic block.
   - If any instruction in a basic block executes, all of its Instructions
     must execute.
-
 
 ### An Algorithm to form Basic Blocks 
 
