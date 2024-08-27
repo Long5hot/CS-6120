@@ -17,7 +17,11 @@ def form_blocks(instrs):
             if instr['op'] in TERMINATORS:
                 blocks.append(cur_block)
                 cur_block = []
-        else:   # A Label.
+        else:
+            """If 'op' is not present currnet isntr is a Label.
+               If last instr was br then block is already appended"""
+            if not cur_block:
+                continue
             blocks.append(cur_block)
             cur_block = [instr]
     # Append last block, which just ends without any label or TERMINATORS.
@@ -60,23 +64,34 @@ def get_cfg(name2block):
         out[name] = succ
     return out
 
-def dce(block):
+def dce(block, is_single_bb):
     used = []
-    
+    last_def = {}
     BlockChanged = 1
     
     while BlockChanged:
-        BlockChanged = 0
-        for instr in block:
+        index, BlockChanged = 0 , 0
+        blockLength = len(block)
+        while index < blockLength:
+            instr = block[index]
+            if "dest" in instr:
+                if instr["dest"] in last_def and instr["dest"] not in used:
+                    index -= 1
+                    blockLength -= 1
+                    block.remove(last_def[instr["dest"]])
+                last_def[instr["dest"]] = instr
+    
             if "args" in instr:
                 for arg in instr["args"]:
-                    used.append(arg) 
+                    used.append(arg)
+            index += 1
    
         for instr in block:
-            if "dest" in instr and instr["dest"] not in used:
+            if "dest" in instr and instr["dest"] not in used and is_single_bb:
                 block.remove(instr)
                 BlockChanged = 1
         used.clear()
+        last_def.clear()
 
 
 
@@ -84,12 +99,15 @@ def runOptimization(name2block):
     """Run Optimizations"""
 
     for name, block in name2block.items():
-        dce(block)
+        is_single_bb = len(name2block.items()) == 1
+        dce(block, is_single_bb)
 
 
 
 def run():
-    program = json.load(sys.stdin)
+    #program = json.load(sys.stdin)
+    
+    program = json.load(open('temp.json',))
 
     for func in program['functions']:
         name2block = block_map(form_blocks(func['instrs']))
