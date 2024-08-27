@@ -86,21 +86,5 @@ for instrs in block:
 
 ```python
 
-used = []
-
-for instrs in block:
-    used +=instrs["args"]
-
-for index, instr in enumarate(block):
-    if dest in instr:
-        remove instr.dest NOT in used.
-    if block[index]["dest"] == block[index-1]["dest"]:
-        remove block[index-1]
-
-
-
-for index, instr in enumarate(block):
-    if dest in instr:
-        
 
 ```
