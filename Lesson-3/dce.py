@@ -68,7 +68,8 @@ def dce(block, is_single_bb):
     used = []
     last_def = {}
     BlockChanged = 1
-    
+
+    # Run the pass again until optimization can't be done.
     while BlockChanged:
         index, BlockChanged = 0 , 0
         blockLength = len(block)
@@ -86,13 +87,13 @@ def dce(block, is_single_bb):
                     used.append(arg)
             index += 1
    
+        # Remove the instruction only if it's a single basic block.
         for instr in block:
             if "dest" in instr and instr["dest"] not in used and is_single_bb:
                 block.remove(instr)
                 BlockChanged = 1
         used.clear()
         last_def.clear()
-
 
 
 def runOptimization(name2block):
@@ -105,9 +106,9 @@ def runOptimization(name2block):
 
 
 def run():
-    #program = json.load(sys.stdin)
+    program = json.load(sys.stdin)
     
-    program = json.load(open('temp.json',))
+    #program = json.load(open('temp.json',))
 
     for func in program['functions']:
         name2block = block_map(form_blocks(func['instrs']))
