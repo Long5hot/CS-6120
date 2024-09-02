@@ -88,3 +88,36 @@ for instrs in block:
 
 
 ```
+
+# Local Value Numbering
+
+- Build a table to track unique canonical sources for every value we compute.
+- Step through the code, keeping track of the value number for each variable at a given point in time.
+
+```llvm
+main {
+    a: int = const 4;
+    b: int = const 2;
+    sum1: int = add a b;
+    sum2: int = add a b;
+    prod: int = mul sum1 sum2;
+    print prod;
+}
+```
+
+- for sum1 and sum2 we need to create a tuple, so like we are using
+  #1 and #2 here.
+  It would be (add, #1, #2).
+- Now sum1 and sum2 will point to the same row which is #3.
+
+
+| # |     Value     | Destination   |
+|---|---------------|---------------|
+| 1 | const 4       | a             |
+| 2 | const 2       | b             |
+| 3 | (add, #1, #2) | sum1          |
+| 4 | (mul, #3, #3) | prod          |
+|   |               |               |
+-------------------------------------
+
+ 
