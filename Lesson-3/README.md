@@ -94,6 +94,40 @@ for instrs in block:
 - Build a table to track unique canonical sources for every value we compute.
 - Step through the code, keeping track of the value number for each variable at a given point in time.
 
+### Dead Code Elimination
+
+- above examples.
+
+### Copy Propogation
+
+```llvm
+main {
+    x : int = const 4;
+    copy1: int = id x;
+    copy2: int = id copy1;
+    copy3: int = id copy2;
+    print copy3;
+}
+```
+
+- For above case we can just print value x.
+
+### Commom Subexpression Elimination
+
+```llvm
+main {
+    a: int = const 4;
+    b: int = const 2;
+    sum1: int = add a b;
+    sum2: int = add a b;
+    prod: int = mul sum1 sum2;
+    print prod;
+}
+```
+- sum1 and sum2 represent the same value.
+
+
+
 ```llvm
 main {
     a: int = const 4;
