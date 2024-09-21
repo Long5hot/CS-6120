@@ -112,6 +112,16 @@ main {
 
 - For above case we can just print value x.
 
+```llvm
+main {
+    x : int = const 4;
+    copy1: int = id x;
+    copy2: int = id x;
+    copy3: int = id x;
+    print x;
+}
+```
+
 ### Commom Subexpression Elimination
 
 ```llvm
@@ -125,8 +135,68 @@ main {
 }
 ```
 - sum1 and sum2 represent the same value.
+```llvm
+main {
+    a: int = const 4;
+    b: int = const 2;
+    sum1: int = add a b;
+    prod: int = mul sum1 sum1;
+    print prod;
+}
+```
+
+### Constant Propogation
+
+```llvm
+main {
+    x : int = const 4;
+    copy1: int = id x;
+    copy2: int = id copy1;
+    copy3: int = id copy2;
+    print x;
+}
+```
+ will be transfered to
+```llvm
+main {
+    x : int = const 4;
+    copy1: int = id 4;
+    copy2: int = id 4;
+    copy3: int = id 4;
+    print x;
+}
+```
+
+### Constant Folding
+
+```llvm
+@main {
+    a: int = const 4;
+    b: int = const 2;
+
+    sum1: int = add a b;
+    sum2: int = add a b;
+    prod1: int = mul sum1 sum2;
+
+    sum1: int = const 0;
+    sum2: int = const 0;
+
+    sum3: int = add a b;
+    prod2: int  = mul sum3 sum3;
+
+    print prod2;
+}
+```
+
+```llvm
+@main {
+    prod2: int = const 36;
+    print prod2;
+}
+```
 
 
+### How LVN Works?
 
 ```llvm
 main {
@@ -145,7 +215,7 @@ main {
 - Now sum1 and sum2 will point to the same row which is #3.
 
 
-| # |     Value     | Destination   |
+| # |     Value     | Destination (current canonical home) |
 |---|---------------|---------------|
 | 1 | const 4       | a             |
 | 2 | const 2       | b             |
@@ -153,5 +223,6 @@ main {
 | 4 | (mul, #3, #3) | prod          |
 |   |               |               |
 -------------------------------------
+
 
  
