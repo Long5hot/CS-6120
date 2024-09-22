@@ -101,7 +101,7 @@ for instrs in block:
 ### Copy Propogation
 
 ```llvm
-main {
+@main {
     x : int = const 4;
     copy1: int = id x;
     copy2: int = id copy1;
@@ -113,7 +113,7 @@ main {
 - For above case we can just print value x.
 
 ```llvm
-main {
+@main {
     x : int = const 4;
     copy1: int = id x;
     copy2: int = id x;
@@ -125,7 +125,7 @@ main {
 ### Commom Subexpression Elimination
 
 ```llvm
-main {
+@main {
     a: int = const 4;
     b: int = const 2;
     sum1: int = add a b;
@@ -136,7 +136,7 @@ main {
 ```
 - sum1 and sum2 represent the same value.
 ```llvm
-main {
+@main {
     a: int = const 4;
     b: int = const 2;
     sum1: int = add a b;
@@ -148,7 +148,7 @@ main {
 ### Constant Propogation
 
 ```llvm
-main {
+@main {
     x : int = const 4;
     copy1: int = id x;
     copy2: int = id copy1;
@@ -158,7 +158,7 @@ main {
 ```
  will be transfered to
 ```llvm
-main {
+@main {
     x : int = const 4;
     copy1: int = id 4;
     copy2: int = id 4;
@@ -199,7 +199,7 @@ main {
 ### How LVN Works?
 
 ```llvm
-main {
+@main {
     a: int = const 4;
     b: int = const 2;
     sum1: int = add a b;
@@ -224,5 +224,37 @@ main {
 |   |               |               |
 -------------------------------------
 
+```python
+table = mapping from value tuples to canonical variables,
+  with each row numbered
+var2num = mapping from variable names to their current
+  value numbers (i.e., rows in table)
+
+for instr in block:
+    value = (instr.op, var2num[instr.args[0]], ...)
+
+    if value in table:
+        # The value has been computed before; reuse it.
+        num, var = table[value]
+        replace instr with copy of var
+
+    else:
+        # A newly computed value.
+        num = fresh value number
+
+        dest = instr.dest
+        if instr will be overwritten later:
+             dest = fresh variable name
+             instr.dest = dest
+        else:
+             dest = instr.dest
+
+        table[value] = num, dest
+
+        for a in instr.args:
+            replace a with table[var2num[a]].var
+
+    var2num[instr.dest] = num
+```
 
  
