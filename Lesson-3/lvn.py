@@ -5,6 +5,7 @@ import sys
 from collections import OrderedDict
 
 TERMINATORS = ('jmp', 'br', 'ret')
+ARITHMATIC_INSTR = ('add', 'mul', 'sub', 'div')
 
 def form_blocks(instrs):
     cur_block = []
@@ -94,20 +95,38 @@ def dce(block, is_single_bb):
         used.clear()
         last_def.clear()
 
+def lvn(block):
+    
+    lvn_table = []
+    for instr in block:
+        if "dest" in instr:
+            canonical_variable = isntr["dest"]
+            
+            if "value" in instr:
+
+
+            if instr["op"] in ARITHMATIC_INSTR:
+
+
+            
+            
+
+
+
 
 def runOptimization(name2block):
     """Run Optimizations"""
 
     for name, block in name2block.items():
         is_single_bb = len(name2block.items()) == 1
-        dce(block, is_single_bb)
+        lvn(block)
 
 
 
 def run():
-    program = json.load(sys.stdin)
+    #program = json.load(sys.stdin)
     
-    #program = json.load(open('temp.json',))
+    program = json.load(open('temp.json',))
 
     for func in program['functions']:
         name2block = block_map(form_blocks(func['instrs']))
@@ -115,7 +134,10 @@ def run():
         
         print("Before Optimizations, Block:")
         for name, block in name2block.items():
-            print(name, ' -> ', block)
+            print("[",name,']')
+            for instrs in block:
+                print(instrs)
+            print("")
         
         runOptimization(name2block)
         
@@ -123,9 +145,10 @@ def run():
         print("")
         print("After Optimizations, Block:")
         for name, block in name2block.items():
-            print(name, ' -> ', block)
-        
-    
+            print("[",name,']')
+            for instrs in block:
+                print(instrs)
+            print("")
     
 
 if __name__ == "__main__":
